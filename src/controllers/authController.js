@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -6,7 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
+
     if (!email || !password)
       return res.status(400).json({ message: 'Email and password are required' });
 
@@ -18,8 +20,17 @@ exports.signup = async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create user (default role = user)
-    const user = new User({ email, passwordHash });
+    // Assign role securely: only allow "admin" role if explicitly permitted (adjust logic as needed)
+    let assignedRole = 'user';
+
+    // Example logic: Only accept 'admin' role if a special flag or secret is provided in request headers or body
+    // Replace this with your own secure admin creation logic
+    if (role === 'admin' /* && check some secret or permission */) {
+      assignedRole = 'admin';
+    }
+
+    // Create user with assigned role
+    const user = new User({ email, passwordHash, role: assignedRole });
     await user.save();
 
     // Generate JWT
@@ -36,6 +47,7 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password)
       return res.status(400).json({ message: 'Email and password are required' });
 

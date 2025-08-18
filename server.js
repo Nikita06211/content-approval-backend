@@ -17,6 +17,11 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/content', contentRoutes);
 
+app.use('/', (req, res) => {
+  res.send("all good");
+});
+
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
